@@ -6,7 +6,7 @@ from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultS
 
 
 
-# create
+# create, list
 class RoutineListCreateAPIView(generics.ListCreateAPIView):
     queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
@@ -19,7 +19,20 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
             return Response({"data":    {"routine_id": serializer.data.get('id', None)}, 
                              "message": {"msg":"You have successfully created the routine.",
                                          "status": "ROUTINE_CREATE_OK"}})
+    # return을 제외하고 super().list()와 동일. 
+    def list(self, request, *args, **kwargs):
+        qs = self.filter_queryset(self.get_queryset())
 
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(qs, many=True)
+        return  Response({"data":     serializer.data, 
+                          "message": {"msg":"You have successfully lookup the routines.",
+                                      "status": "ROUTINE_LIST_OK"}})
+        
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
 
 # retreive, update, delete
@@ -33,7 +46,7 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return Response({"data":   {"account_id": self.request.user.id,
                                     "routine_id": serializer.data},
                         "message": {"msg":"You have successfully lookup the routine.",
-                                    "status": "ROUTINE_LOOKUP_OK"}})
+                                    "status": "ROUTINE_DETAIL_OK"}})
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
