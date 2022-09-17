@@ -8,8 +8,12 @@ from .utils import view_utils
 
 # create, list
 class RoutineListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
+    
+    def get_queryset(self):
+        uid = self.request.user.id
+        queryset = Routine.objects.filter(account=uid, is_deleted=False)
+        return queryset
     
     def create(self, request, *args, **kwargs):
         user = self.request.user
@@ -21,14 +25,14 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
                                          "status": "ROUTINE_CREATE_OK"}})
     # return을 제외하고 super().list()와 동일. 
     def list(self, request, *args, **kwargs):
-        qs = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset())
 
-        page = self.paginate_queryset(qs)
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(qs, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return  Response({"data":     serializer.data, 
                           "message": {"msg":"You have successfully lookup the routines.",
                                       "status": "ROUTINE_LIST_OK"}})
