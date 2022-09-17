@@ -5,7 +5,7 @@ from .models import Routine, RoutineDay, RoutineResult
 from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultSerializer
 
 
- 
+
 # create
 class RoutineListCreateAPIView(generics.ListCreateAPIView):
     queryset = Routine.objects.all()
@@ -22,11 +22,19 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
 
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
 
-# update
-class RoutineUpdateAPIView(generics.UpdateAPIView):
+# retreive, update, delete
+class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({"data":   {"account_id": self.request.user.id,
+                                    "routine_id": serializer.data},
+                        "message": {"msg":"You have successfully lookup the routine.",
+                                    "status": "ROUTINE_LOOKUP_OK"}})
+
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
@@ -36,4 +44,4 @@ class RoutineUpdateAPIView(generics.UpdateAPIView):
                              "message": {"msg":"You have successfully updated the routine.",
                                          "status": "ROUTINE_UPDATE_OK"}})
 
-Routine_update_view = RoutineUpdateAPIView.as_view()
+Routine_update_view = RoutineDetailAPIView.as_view()
