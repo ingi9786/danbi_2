@@ -6,7 +6,7 @@ from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultS
 from .utils import view_utils
 
 
-# create, list
+# List view
 class RoutineListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = RoutineSerializer
     
@@ -23,7 +23,7 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
             return Response({"data":    {"routine_id": serializer.data.get('id', None)}, 
                              "message": {"msg":"You have successfully created the routine.",
                                          "status": "ROUTINE_CREATE_OK"}})
-    # return을 제외하고 super().list()와 동일. 
+ 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -40,7 +40,7 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
 
 
-# retreive, update, delete
+# Detail view
 class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
@@ -70,3 +70,27 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                                      "status": "ROUTINE_DELETE_OK"}})
 
 Routine_update_view = RoutineDetailAPIView.as_view()
+
+
+class DeletedRoutineListAPIView(generics.ListAPIView):
+    serializer_class = RoutineSerializer
+    
+    def get_queryset(self):
+        uid = self.request.user.id
+        queryset = Routine.objects.filter(account=uid, is_deleted=True)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return  Response({"data":     serializer.data, 
+                          "message": {"msg":"You have successfully lookup the deleted routines.",
+                                      "status": "DELETED_ROUTINE_LIST_OK"}})
+
+Deleted_routine_list_view = DeletedRoutineListAPIView.as_view()
