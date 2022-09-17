@@ -7,24 +7,23 @@ from .models import Routine, RoutineDay, RoutineResult
 class RoutineDaySerializer(serializers.ModelSerializer):
     class Meta:
         model            = RoutineDay
-        fields           = "__all__"
-        read_only_fields = ('routine', 'created_at', 'modified_at', )
+        fields           = ['day', ]
 
 
 class RoutineResultSerializer(serializers.ModelSerializer):
     class Meta:
         model            = RoutineResult
-        fields           = "__all__"
-        read_only_fields = ('id', 'routine', 'is_delete', 'created_at', 'modified_at',)
+        fields           = ['result', ]
 
 
 class RoutineSerializer(serializers.ModelSerializer):
     days = RoutineDaySerializer(many=True)
+    result = RoutineResultSerializer(many=True)
 
     class Meta:
         model            = Routine
-        fields           = "__all__"
-        read_only_fields = ('id', 'account', 'is_delete', 'created_at', 'modified_at',)
+        fields           = ['id', 'account', 'title', 'category', 'goal', 'is_alarm','days', 'result']
+        read_only_fields = ('id', 'account', 'is_delete')
         
     def create(self, validated_data):
         # validated_data = {days': [OrderedDict([('day', 'mon')])], 'title': ... , 'uid':1} 
