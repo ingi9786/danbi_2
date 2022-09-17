@@ -3,7 +3,7 @@ from rest_framework import generics, mixins
 
 from .models import Routine, RoutineDay, RoutineResult
 from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultSerializer
-
+from .utils import view_utils
 
 
 # create, list
@@ -35,6 +35,7 @@ class RoutineListCreateAPIView(generics.ListCreateAPIView):
         
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
 
+
 # retreive, update, delete
 class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Routine.objects.all()
@@ -56,5 +57,12 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             return Response({"data":    {"routine_id": serializer.data.get('id', None)}, 
                              "message": {"msg":"You have successfully updated the routine.",
                                          "status": "ROUTINE_UPDATE_OK"}})
+            
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        view_utils.logical_delete_routine(instance)
+        return Response({"data":    {"routine_id": instance.id}, 
+                         "message": {"msg":"You have successfully deleted the routine.",
+                                     "status": "ROUTINE_DELETE_OK"}})
 
 Routine_update_view = RoutineDetailAPIView.as_view()
