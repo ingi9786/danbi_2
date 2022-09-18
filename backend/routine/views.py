@@ -49,6 +49,11 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated, )
     
+    def get_queryset(self):
+        uid = self.request.user.id
+        queryset = Routine.objects.filter(account=uid, is_deleted=False)
+        return queryset
+        
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
