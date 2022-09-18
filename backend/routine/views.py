@@ -1,5 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, mixins
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Routine, RoutineDay, RoutineResult
 from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultSerializer
@@ -9,6 +11,8 @@ from .utils import view_utils
 # List view
 class RoutineListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = RoutineSerializer
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (IsAuthenticated, )
     
     def get_queryset(self):
         uid = self.request.user.id
@@ -44,6 +48,8 @@ Routine_list_create_view = RoutineListCreateAPIView.as_view()
 class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (IsAuthenticated, )
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -74,6 +80,8 @@ Routine_update_view = RoutineDetailAPIView.as_view()
 
 class DeletedRoutineListAPIView(generics.ListAPIView):
     serializer_class = RoutineSerializer
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (IsAuthenticated, )
     
     def get_queryset(self):
         uid = self.request.user.id
