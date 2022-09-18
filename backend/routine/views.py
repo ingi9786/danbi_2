@@ -6,18 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Routine, RoutineDay, RoutineResult
 from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultSerializer
 from .utils import view_utils
-
+from .mixins import ListQuerySetMixin
 
 # List view
-class RoutineListCreateAPIView(generics.ListCreateAPIView):
+class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
+    queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated, )
-    
-    def get_queryset(self):
-        uid = self.request.user.id
-        queryset = Routine.objects.filter(account=uid, is_deleted=False)
-        return queryset
     
     def create(self, request, *args, **kwargs):
         user = self.request.user
