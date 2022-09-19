@@ -18,7 +18,7 @@ class RoutineResultSerializer(serializers.ModelSerializer):
 
 class RoutineSerializer(serializers.ModelSerializer):
     days = RoutineDaySerializer(many=True)
-    result = RoutineResultSerializer(many=True)
+    result = RoutineResultSerializer(many=True, read_only=True)
 
     class Meta:
         model            = Routine
