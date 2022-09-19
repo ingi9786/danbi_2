@@ -15,14 +15,16 @@ class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated, )
     
+
     def create(self, request, *args, **kwargs):
         user = self.request.user
         serializer = RoutineSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(uid=user.id)
-            return Response({"data":    {"routine_id": serializer.data.get('id', None)}, 
-                             "message": {"msg":"You have successfully created the routine.",
-                                         "status": "ROUTINE_CREATE_OK"}})
+            msg =  {"msg":"You have successfully created the routine.", "status": "ROUTINE_CREATE_OK"}
+            return Response({"data":{"routine_id": serializer.data.get('id', None)},
+                             "message":msg
+                            })
  
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -31,12 +33,15 @@ class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+        
+        msg = {"msg":"You have successfully lookup the routines.", "status": "ROUTINE_LIST_OK"}
+        if not queryset.exists():
+            return Response({"message": msg})
 
         serializer = self.get_serializer(queryset, many=True)
-        return  Response({"data":     serializer.data, 
-                          "message": {"msg":"You have successfully lookup the routines.",
-                                      "status": "ROUTINE_LIST_OK"}})
-
+        return  Response({"data": serializer.data,
+                          "message": msg
+                        })
 
 # Detail view
 class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -49,30 +54,36 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         uid = self.request.user.id
         queryset = Routine.objects.filter(account=uid, is_deleted=False)
         return queryset
-        
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return Response({"data":   {"account_id": self.request.user.id,
-                                    "routine_id": serializer.data},
-                        "message": {"msg":"You have successfully lookup the routine.",
-                                    "status": "ROUTINE_DETAIL_OK"}})
+        msg = {"msg":"You have successfully lookup the routine.", "status": "ROUTINE_DETAIL_OK"}
+        return Response({"data":{
+                                "account_id": self.request.user.id,
+                                "routine_id": serializer.data
+                                },
+                        "message":msg
+                        })
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
+    
         if serializer.is_valid(raise_exception=True):
             serializer.save(rid=instance.id)
-            return Response({"data":    {"routine_id": serializer.data.get('id', None)}, 
-                             "message": {"msg":"You have successfully updated the routine.",
-                                         "status": "ROUTINE_UPDATE_OK"}})
+            msg = {"msg":"You have successfully updated the routine.", "status": "ROUTINE_UPDATE_OK"}
+            return Response({"data": {"routine_id": serializer.data.get('id', None)}, 
+                             "message": msg
+                            })
             
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         view_utils.logical_delete_routine(instance)
-        return Response({"data":    {"routine_id": instance.id}, 
-                         "message": {"msg":"You have successfully deleted the routine.",
-                                     "status": "ROUTINE_DELETE_OK"}})
+        msg = {"msg":"You have successfully deleted the routine.", "status": "ROUTINE_DELETE_OK"}
+        return Response({"data":{"routine_id": instance.id}, 
+                         "message": msg
+                        })
 
 
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
