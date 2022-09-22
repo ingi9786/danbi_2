@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Routine Register Page</title>
+  </head>
+  <body>
+    <h2>Welcome to Register Page!</h2>
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">SIGN IN</button>
+    </form>
+    <a href="{% url 'main-page' %}">Redirect to Main Page</a>
+  </body>
+</html>
