@@ -20,21 +20,19 @@ class UserManagerTest(TestCase):
         self.User = get_user_model()
     
     def test_create_user(self):
+        # Fail case
         with self.assertRaises(ValueError):
             self.User.objects.create_user('', 'test1234!')
-            
         with self.assertRaises(ValueError):
             self.User.objects.create_user('test.com', 'test1234!')
-        
-        user = self.User.objects.create_user('test@a.com', '1234')
-        self.assertEqual(str(user), 'test@a.com')
-
+        # Success Case
         user = self.User.objects.create_user('test1@a.com', 'test1234!')
         self.assertEqual(str(user), 'test@a.com')
         
     def test_create_superuser(self):
+        # Fail case
         with self.assertRaises(ValueError):
             su_user = self.User.objects.create_superuser('test@a.com', 'test1234!', is_superuser=False)
-        
+        # Success Case
         su_user = self.User.objects.create_superuser('test@a.com', 'test1234!')
         self.assertEqual(str(su_user), 'test@a.com')
