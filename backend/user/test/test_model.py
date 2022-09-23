@@ -27,7 +27,7 @@ class UserManagerTest(TestCase):
             self.User.objects.create_user('test.com', 'test1234!')
         # Success Case
         user = self.User.objects.create_user('test1@a.com', 'test1234!')
-        self.assertEqual(str(user), 'test@a.com')
+        self.assertEqual(str(user), 'test1@a.com')
         
     def test_create_superuser(self):
         # Fail case
