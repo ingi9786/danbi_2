@@ -1,6 +1,8 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
 from .models import User
 from .password_validation import NumericSpecialCharValidator as V
+
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -12,7 +14,14 @@ class CustomUserCreationForm(UserCreationForm):
         if V.validate(password1):
             return password1
 
+
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
+        model = User
+        fields = ('email',)
+
+
+class CustomUserLoginForm(AuthenticationForm):
+    class Meta:
         model = User
         fields = ('email',)
