@@ -1,0 +1,1 @@
+# this is required for executing 'python manage.py test' command.

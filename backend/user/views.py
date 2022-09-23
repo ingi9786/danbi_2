@@ -5,12 +5,13 @@ from .forms import CustomUserCreationForm, CustomUserLoginForm
 from .models import User
 
 
+
 class UserRegisterView(CreateView):
     model = User
     form_class = CustomUserCreationForm
     template_name = 'register.html'
     success_url = '/user/login'
-    
+
 
 class UserLoginView(FormView):
     model = User
@@ -26,4 +27,3 @@ class UserLoginView(FormView):
             logout(self.request)
             login(self.request, user)
         return HttpResponseRedirect(self.get_success_url())
-    
