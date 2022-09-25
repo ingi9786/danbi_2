@@ -26,4 +26,4 @@ class UserLoginView(FormView):
         if user is not None and user.is_active:
             logout(self.request)
             login(self.request, user)
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(redirect_to=self.get_success_url())
