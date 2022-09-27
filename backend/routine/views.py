@@ -9,6 +9,8 @@ from .serializers import RoutineSerializer, RoutineDaySerializer, RoutineResultS
 from .utils import view_utils
 from .mixins import ListQuerySetMixin
 
+
+
 # List view
 class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
     queryset = Routine.objects.all()
@@ -16,7 +18,6 @@ class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (IsAuthenticated, )
     
-
     def create(self, request, *args, **kwargs):
         user = self.request.user
         serializer = RoutineSerializer(data=request.data)
