@@ -36,13 +36,13 @@ class RoutineListCreateAPIView(ListQuerySetMixin, generics.ListCreateAPIView):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         
-        msg = "There is no routine."
         if not queryset.exists():
-            return Response({"message": msg,
+            return Response({"message": "There is no routine.",
                              "status": status.HTTP_204_NO_CONTENT
                             })
         
         serializer = self.get_serializer(queryset, many=True)
+        msg = view_utils.get_LIST_response_msg(request)
         return  Response({"data": serializer.data,
                           "message": msg,
                           "status": status.HTTP_200_OK
