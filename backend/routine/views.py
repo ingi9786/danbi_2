@@ -57,7 +57,7 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         uid = self.request.user.id
-        queryset = Routine.objects.filter(account=uid, is_deleted=False)
+        queryset = Routine.objects.filter(account=uid)
         return queryset
 
     def retrieve(self, request, *args, **kwargs):

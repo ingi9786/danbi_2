@@ -1,20 +1,19 @@
-from ..models import RoutineResult
+from ..models import Routine, RoutineResult
 
 
 
-def logical_delete_routine_result(instance):
-    result = RoutineResult.objects.get(routine=instance.id)
-    result.is_deleted = True
-    result.save()
-
-def logical_delete_routine(instance):
-    instance.is_deleted = True
-    instance.save()
-    logical_delete_routine_result(instance)
+def logical_delete_routine(routine):
+    routine.soft_delete()
+    result = RoutineResult.objects.get(routine=routine)
+    result.soft_delete()
 
 def get_LIST_response_msg(request):
     date    = bool(request.GET.get('date', None))
-    deleted = bool(request.GET.get('is-del', None))
+    deleted = request.GET.get('is-del', None)
+    if deleted == None or '0':
+        deleted = False
+    else:
+        deleted = True
 
     prefix = ''
     if date==False and deleted==False:

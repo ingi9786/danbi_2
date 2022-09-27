@@ -2,15 +2,40 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
+
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return super(models.Manager, self).get_queryset().filter(is_deleted=True)
+
+
+class SoftDeleteModel(models.Model):
+    is_deleted = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    del_objects = SoftDeleteManager()
+
+    def soft_delete(self):
+        self.is_deleted = True
+        self.save()
+
+    def restore(self):
+        self.is_deleted = False
+        self.save()
+
+    class Meta:
+        abstract = True
+
+
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
+        
 
-
-class Routine(TimeStampedModel):
+class Routine(SoftDeleteModel, TimeStampedModel):
     class Category(models.TextChoices):
         MIRACLE  = "miracle", _("기상관련")
         HOMEWORK = "homework", _("숙제관련")
@@ -21,7 +46,6 @@ class Routine(TimeStampedModel):
     category   = models.CharField(max_length=15, choices=Category.choices, default=Category.MIRACLE)
     goal       = models.CharField(max_length=50)
     is_alarm   = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
     
     @property
     def days(self):
@@ -30,12 +54,12 @@ class Routine(TimeStampedModel):
     @property
     def result(self):
         return self.routineresult_set.all()
-
+    
     class Meta:
         db_table = "routine"
 
 
-class RoutineResult(TimeStampedModel):
+class RoutineResult(SoftDeleteModel, TimeStampedModel):
     class Result(models.TextChoices):
         NOT  = "not", _("안함")
         TRY  = "try", _("시도")
@@ -44,7 +68,6 @@ class RoutineResult(TimeStampedModel):
     id                = models.BigAutoField(primary_key=True, db_column='routine_result_id')
     routine           = models.ForeignKey(Routine, on_delete=models.CASCADE, db_column='routine_id')
     result            = models.CharField(max_length=4, choices=Result.choices, default=Result.NOT)
-    is_deleted        = models.BooleanField(default=False)
     
     class Meta:
         db_table = "routine_result"

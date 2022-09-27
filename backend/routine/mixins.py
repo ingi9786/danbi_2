@@ -2,32 +2,25 @@ from .models import Routine
 from .utils.mixins_utils import *
 
 
-
+# 쿼리 파람은 str False, True. 
 class ListQuerySetMixin():
     def get_queryset(self):
         date = self.request.GET.get('date', None)
-        isdel = self.request.GET.get('is-del', None)
-
-        uid = self.request.user.id
-        qs = Routine.objects.filter(account=uid)
+        is_del = self.request.GET.get('is-del', None)
+        if is_del==None or is_del=='0':
+            is_del = False
+        else:
+            is_del = True
         
-        # 삭제되지 않은 routine 보여주기 
-        if (date is None) and (bool(isdel)==0):
-            return qs.filter(is_deleted=False)
-        # 삭제된 routine 보여주기
-        elif (date is None) and (bool(isdel)==1):
-            return qs.filter(is_deleted=True)
+        uid = self.request.user.id
+        if is_del==False:
+            qs = Routine.objects.filter(account=uid, is_deleted=False)
+        else:
+            del_qs = Routine.del_objects.filter(account=uid)
+            return del_qs
+        
+        if date is None:
+            return qs
         elif date is not None:
             day = convert_day(date) if is_valid_date(date) else get_today()
-            if bool(isdel)==0:
-                return qs.filter(is_deleted=False, routineday__day=day)
-            else:
-                return qs.filter(is_deleted=True, routineday__day=day)
-
-        return qs
-    
-# date delete
-#  0     0     모든 살아있는 routine
-#  0     1     모든 죽어있는 routine
-#  1     0     특정 날짜에 삭제되지 않은 routine
-#  1     1     특정 날짜에 삭제된 routine (내가 몇일에 삭제했는지가 필요할지 모르지만 구현)
+            return qs.filter(routineday__day=day)
