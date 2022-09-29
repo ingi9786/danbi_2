@@ -11,7 +11,8 @@ def convert_day(arg):
     return daydic[_day]
 
 def get_today():
-    return "".join(str(date.today()).split('-'))
+    today ="".join(str(date.today()).split('-'))
+    return convert_day(today)
 
 def is_valid_date(arg):
-    return True if arg.isdigit() and len(arg)==8 else False
+    return True if (arg.isdigit() and len(arg)==8) else False
