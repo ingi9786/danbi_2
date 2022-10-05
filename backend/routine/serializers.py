@@ -44,14 +44,22 @@ class RoutineSerializer(serializers.ModelSerializer):
         return routine 
 
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data, **kwargs):
         days = validated_data.pop('days')
+
+        restore = validated_data.get('restore', False)
+        if restore==True:
+            instance.restore()
+            instance.save()
+            return instance
     
         # routine 수정
         for field, value in validated_data.items():
             setattr(instance, field, value)
 
         instance.save()
+
+        
 
         # routine day
         rid = validated_data.get('rid')

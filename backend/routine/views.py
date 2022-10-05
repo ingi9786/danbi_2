@@ -79,7 +79,7 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                              "message": "You have successfully updated the routine.",
                              "status": status.HTTP_200_OK
                             })
-            
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         view_utils.logical_delete_routine(instance)
@@ -90,5 +90,69 @@ class RoutineDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                         })
 
 
+class DeletedRoutineMixinView(mixins.ListModelMixin,
+                                    mixins.RetrieveModelMixin,
+                                    mixins.UpdateModelMixin,
+                                    generics.GenericAPIView):
+    
+    queryset = Routine.del_objects.all()
+    serializer_class = RoutineSerializer
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (IsAuthenticated, )
+    lookup_field = 'pk'
+    
+    def get(self, request, *args, **kwargs): #HTTP -> get
+        pk = kwargs.get("pk")
+        if pk is not None:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({"data":{"account_id": self.request.user.id,
+                                 "routine_id": serializer.data},
+                        "message": "You have successfully lookup the deleted routine.",
+                        "status": status.HTTP_200_OK
+                        })
+
+    def perform_update(self, serializer, **kwargs):
+        serializer.save(restore=True)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    
+        if serializer.is_valid(raise_exception=True):
+            self.perform_update(serializer)
+            return Response({"data": {"routine_id": serializer.data.get('id', None)}, 
+                             "message": "You have successfully restored the routine.",
+                             "status": status.HTTP_200_OK
+                            })
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        if not queryset.exists():
+            return Response({"message": "There is no deleted routine.",
+                             "status": status.HTTP_204_NO_CONTENT
+                            })
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return  Response({"data": serializer.data,
+                          "message": "You have successfully lookup the deleted routine list",
+                          "status": status.HTTP_200_OK
+                        })
+
 Routine_list_create_view = RoutineListCreateAPIView.as_view()
 Routine_detail_view = RoutineDetailAPIView.as_view()
+Deleted_routine_mixin_view = DeletedRoutineMixinView.as_view()
