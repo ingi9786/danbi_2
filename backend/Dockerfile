@@ -10,7 +10,7 @@ RUN python3 -m venv /opt/venv
 # local의 venv의 pip.exe위치와 다름에 주의하자. 이 image는 리눅스기반이므로.
 # 설치한 가상환경의 gunicorn실행을 위한 명령어를 entrypoint.sh로 저장.
 
-RUN pip install pip --upgrade && \
+RUN /opt/venv/bin/pip install pip --upgrade && \
     /opt/venv/bin/pip install -r requirements.txt && \
     chmod +x entrypoint.sh
 
