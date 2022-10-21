@@ -26,11 +26,12 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str(os.environ.get("DEBUG")) == "1"
 
+ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
 ALLOWED_HOSTS = []
-
+if ENV_ALLOWED_HOST:
+    ALLOWED_HOSTS = [ ENV_ALLOWED_HOST ]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -78,17 +79,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get("POSTGRES_DB"),
-            'USER': os.environ.get("POSTGRES_USER"),
-            'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-            'HOST': os.environ.get("POSTGRES_HOST"),
-            'PORT': os.environ.get("POSTGRES_PORT"),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("POSTGRES_DB"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("POSTGRES_HOST"),
+        'PORT': os.environ.get("POSTGRES_PORT"),
     }
+}
+
+DB_IGNORE_SSL = os.environ.get("DB_IGNORE_SSL") == "true"
+if not DB_IGNORE_SSL:
+    DATABASES["default"]["OPTIONS"] = {
+        "sslmode": "require"
+    }
+    
 
 
 # Password validation
@@ -122,7 +129,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'staticfiles/'
+STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 

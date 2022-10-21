@@ -8,4 +8,6 @@ db.sqlite3
 db.sqlite3-journal
 media
 backend/.env
+backend/.env.prod
 backend/staticfiles
+.kube/kubeconfig.yaml

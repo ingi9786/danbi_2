@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-backend-deployment
+  labels:
+    app: django-backend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-backend-deployment
+  template:
+    metadata:
+      labels:
+        app: django-backend-deployment
+    spec:
+      containers:
+        - name: django-backend
+          image: registry.digitalocean.com/private-image-registry-ingi/django-danbi2:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: django-backend-env-prod
+          env:
+            - name: PORT
+              value: "8001"
+          ports:
+            - containerPort: 8001
+      imagePullSecrets:
+        - name: private-image-registry-ingi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-backend-lb-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8001
+  selector:
+    app: django-backend-deployment
