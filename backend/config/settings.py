@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # external apps
     'rest_framework',
+    'storages',
+    # internal apps
     'user',
     'routine',
 ]
@@ -129,9 +132,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+STATIC_URL = 'static/'                                  # static 파일을 요청하기 위한 URL
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles-cdn") # collectstatic 시 스태틱 파일이 모이는 디렉터리 명 s3를 안쓰면 필요하다.
+
+MEDIA_URL = 'media/'                                    # media 파일을 요청하기 위한 URL
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")            # media 파일들이 저장되는 디렉터리; 내가 아마 생성해야할듯. 
+
+STATICFILES_DIRS = [
+    BASE_DIR / "staticfiles"                            # collectstatic시 root 말고 추가로 찾는 디렉터리. 아마 내가 만들어야할듯? 
+]
+
+from .cdn.conf import *
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -139,3 +151,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
+
