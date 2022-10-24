@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin-site'),
     path('', TemplateView.as_view(template_name='main.html'), name='main-page'),
     path('user/', include('user.urls')),
-    path('routine/', include('routine.urls'))
+    path('routine/', include('routine.urls')),
+    path('mail/', include('send_mail.urls')),
 ]
