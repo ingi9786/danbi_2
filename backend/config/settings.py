@@ -81,23 +81,30 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+if DEBUG!=True:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get("POSTGRES_DB"),
+            'USER': os.environ.get("POSTGRES_USER"),
+            'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+            'HOST': os.environ.get("POSTGRES_HOST"),
+            'PORT': os.environ.get("POSTGRES_PORT"),
+        }
+    }
 
-DATABASES = {
+    DB_IGNORE_SSL = os.environ.get("DB_IGNORE_SSL") == "true"
+    if not DB_IGNORE_SSL:
+        DATABASES["default"]["OPTIONS"] = {
+            "sslmode": "require"
+        }
+else:
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_DB"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("POSTGRES_HOST"),
-        'PORT': os.environ.get("POSTGRES_PORT"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-DB_IGNORE_SSL = os.environ.get("DB_IGNORE_SSL") == "true"
-if not DB_IGNORE_SSL:
-    DATABASES["default"]["OPTIONS"] = {
-        "sslmode": "require"
-    }
     
 
 
