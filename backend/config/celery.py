@@ -13,6 +13,7 @@ app.conf.update(timezone = 'Asia/Seoul')
 app.config_from_object(settings, namespace="CELERY") # celery app이 django settings를 이용한다. 
 
 app.autodiscover_tasks()
+# app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # @app.task(bind=True)
 # def debug_task(self):

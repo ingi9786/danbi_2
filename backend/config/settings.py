@@ -108,6 +108,16 @@ else:
         DATABASES["default"]["OPTIONS"] = {
             "sslmode": "require"
         }
+        
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://redis-service:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.Default',
+#         }
+#     }
+# }
     
 
 
@@ -162,12 +172,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
 
+
+# REDIS SETTINGS:
+# REDIS_URL = os.environ.get("REDIS_URL")
+# host = os.environ.get("REDIS_HOST")
+# port = os.environ.get("REDIS_PORT")
+
 # CELERY SETTINGS
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_BROKER_URL = 'redis://redis-service:6379/1'
 CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_RESULT_BACKEND = 'redis://redis-service:6379/1'
 CELERY_TIMEZONE = 'Asia/Seoul'
 
-# celery의 결과를 저장하기 위한 백앤드
-# CELERY_RESULT_BACKEND = 'django-db'
+# MailChimp SETTING
+MAILCHIMP_TRANSACTIONAL_API_KEY = os.environ.get("MAILCHIMP_TRAN_API_KEY")
+# MAILCHIMP_MARKETING_API_KEY = '<your mailchimp marketing api key>'
+# MAILCHIMP_MARKETING_REGION = '<your mailchimp marketing region>'
+# MAILCHIMP_MARKETING_AUDIENCE_ID = '<your mailchimp audience id>'
